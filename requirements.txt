@@ -1,0 +1,4 @@
+Flask==2.3.3
+gunicorn==20.1.0
+Flask-Session==0.4.0
+redis==4.1.0

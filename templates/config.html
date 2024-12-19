@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfiguracja</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Konfiguracja</h1>
+    <form method="POST" action="{{ url_for('config_page') }}">
+        <h2>LIMITY DZIAŁAŃ:</h2>
+        <label for="min_number">Liczba MIN:</label>
+        <input type="number" id="min_number" name="min_number" value="{{ config['min_number'] }}"><br>
+
+        <label for="max_number">Liczba MAX:</label>
+        <input type="number" id="max_number" name="max_number" value="{{ config['max_number'] }}"><br>
+
+        <label for="max_result">MAX wynik:</label>
+        <input type="number" id="max_result" name="max_result" value="{{ config['max_result'] }}"><br>
+
+        <label for="integer_results_only">Wyniki w liczbach całkowitych:</label>
+        <input type="checkbox" id="integer_results_only" name="integer_results_only" {% if config['integer_results_only'] %}checked{% endif %}><br>
+
+        <label for="allow_negative_answers">Dozwolone wyniki ujemne:</label>
+        <input type="checkbox" id="allow_negative_answers" name="allow_negative_answers" {% if config['allow_negative_answers'] %}checked{% endif %}><br>
+
+        <h2>OPERACJE:</h2>
+        <label for="addition">Dodawanie:</label>
+        <input type="checkbox" id="addition" name="addition" {% if config['addition'] %}checked{% endif %}><br>
+
+        <label for="subtraction">Odejmowanie:</label>
+        <input type="checkbox" id="subtraction" name="subtraction" {% if config['subtraction'] %}checked{% endif %}><br>
+
+        <label for="multiplication">Mnożenie:</label>
+        <input type="checkbox" id="multiplication" name="multiplication" {% if config['multiplication'] %}checked{% endif %}><br>
+
+        <label for="division">Dzielenie:</label>
+        <input type="checkbox" id="division" name="division" {% if config['division'] %}checked{% endif %}><br>
+
+        <h2>TRYB WYZWANIA:</h2>
+        <label for="challenge_mode">Tryb wyzwania włączony:</label>
+        <input type="checkbox" id="challenge_mode" name="challenge_mode" {% if config['challenge_mode'] %}checked{% endif %}><br>
+
+        <label for="challenge_problems">Ilość pytań na wyzwanie:</label>
+        <input type="number" id="challenge_problems" name="challenge_problems" value="{{ config['challenge_problems'] }}"><br>
+
+        <label for="timer_enabled">Limit czasu włączony:</label>
+        <input type="checkbox" id="timer_enabled" name="timer_enabled" {% if config['timer_enabled'] %}checked{% endif %}><br>
+
+        <label for="timer_seconds">Czas na rozwiązanie zadania (sekund):</label>
+        <input type="number" id="timer_seconds" name="timer_seconds" value="{{ config['timer_seconds'] }}"><br>
+
+        <label for="show_reset_button">Pokaż przycisk RESET:</label>
+        <input type="checkbox" id="show_reset_button" name="show_reset_button" {% if config['show_reset_button'] %}checked{% endif %}><br>
+
+        <input type="submit" value="Zapisz zmiany">
+    </form>
+    <a href="{{ url_for('home') }}">Powrót</a>
+</body>
+</html>

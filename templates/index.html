@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatemaPYka</title>
+</head>
+<body>
+    <h1>Matema<span style="color: green;">PY</span>ka</h1>
+
+    {% if problem %}
+    {% if timer_active %}
+    <p>Pozostały czas: <span id="timer">{{ timer_seconds_left }}</span> sekund</p>
+    {% endif %}
+    <h2 id="current-problem">{{ problem.num1 }} {{ problem.operator }} {{ problem.num2 }} = ?</h2>
+    <form method="post">
+        <input type="number" step="any" name="answer" required>
+        <button type="submit" name="action" value="submit">Submit</button>
+    </form>
+    {% else %}
+    <p>Naciśnij start aby zacząć!</p>
+    {% endif %}
+
+    {% if config.challenge_mode and problems_left is not none %}
+    <p id="problems-left">Pozostało pytań: {{ problems_left }}</p>
+    {% endif %}
+
+    <!-- Feedback for previous problem -->
+    <p id="last-problem-feedback">
+        {% if last_problem and is_correct is not none %}
+            {% if is_correct %}
+                <span style="color: green;">DOBRZE! BRAWO!</span>
+            {% else %}
+                <span style="color: red;">ŹLE! Prawidłowa odpowiedź to: {{ last_problem.answer }}.</span>
+            {% endif %}
+        {% endif %}
+    </p>
+
+    <!-- Show stats -->
+    <h3>Statystyka:</h3>
+    <p>DOBRZE: <span id="good-count">{{ stats.good }}</span></p>
+    <p>ŹLE: <span id="bad-count">{{ stats.bad }}</span></p>
+    <p>Twój wynik: <span id="accuracy">{{ (stats.good / (stats.good + stats.bad) * 100) | round(3) if (stats.good + stats.bad) > 0 else 0 }}</span>%</p>
+
+    <!-- Controls -->
+    <form method="post">
+        <button type="submit" name="action" value="start">Start</button>
+        <button type="submit" name="action" value="stop">Stop</button>
+    </form>
+    <form method="get" action="/config">
+        <button type="submit">Config</button>
+    </form>
+
+    {% if config.show_reset_button %}
+    <form method="get" action="/reset">
+        <button type="submit">Reset</button>
+    </form>
+    {% endif %}
+    <form method="get" action="/scoreboard">
+        <button type="submit">Scoreboard</button>
+    </form>
+
+    <script>
+        function updateTimer() {
+            fetch('/timer')
+                .then(response => response.json())
+                .then(data => {
+                    // Update timer display
+                    const timerElement = document.getElementById('timer');
+                    if (timerElement) {
+                        timerElement.innerText = data.timer_seconds_left;
+                    }
+
+                    // Update current problem
+                    const currentProblemElement = document.getElementById('current-problem');
+                    if (currentProblemElement && data.problem) {
+                        currentProblemElement.innerText = `${data.problem.num1} ${data.problem.operator} ${data.problem.num2} = ?`;
+                    }
+
+                    // Update stats
+                    document.getElementById('good-count').innerText = data.stats.good;
+                    document.getElementById('bad-count').innerText = data.stats.bad;
+                    document.getElementById('accuracy').innerText = ((data.stats.good / (data.stats.good + data.stats.bad)) * 100).toFixed(3) || 0;
+
+                    // Update feedback for the previous problem
+                    const feedbackElement = document.getElementById('last-problem-feedback');
+                    if (feedbackElement && data.last_problem && data.last_problem.answer !== undefined) {
+                        if (data.is_correct === false) {
+                            feedbackElement.innerHTML = `<span style="color: red;">ŹLE! Prawidłowa odpowiedź to: ${data.last_problem.answer}.</span>`;
+                        } else if (data.is_correct === true) {
+                            feedbackElement.innerHTML = '<span style="color: green;">DOBRZE! BRAWO!</span>';
+                        } else {
+                            feedbackElement.innerHTML = '';
+                        }
+                    }
+
+                    // Update problems left
+                    const problemsLeftElement = document.getElementById('problems-left');
+                    if (problemsLeftElement && data.problems_left !== null && data.config.challenge_mode) {
+                        problemsLeftElement.innerText = `Pozostało pytań: ${data.problems_left}`;
+                    } else if (problemsLeftElement) {
+                        problemsLeftElement.innerText = '';
+                    }
+
+                    // Continue updating if the timer is active
+                    if (data.timer_active) {
+                        setTimeout(updateTimer, 1000);
+                    }
+                })
+                .catch(error => console.error("Error fetching timer:", error));
+        }
+        updateTimer();
+    </script>
+
+</body>
+</html>
